@@ -169,6 +169,7 @@ describe('toMatchImageSnapshot', () => {
     const dataArg = runDiffImageToSnapshot.mock.calls[0][0];
     // This is to make the test work on windows
     dataArg.snapshotsDir = dataArg.snapshotsDir.replace(/\\/g, '/');
+    dataArg.diffSnapshotsDir = dataArg.diffSnapshotsDir.replace(/\\/g, '/');
 
     expect(dataArg).toMatchSnapshot();
   });
@@ -343,6 +344,7 @@ describe('toMatchImageSnapshot', () => {
     const toMatchImageSnapshot = configureToMatchImageSnapshot({
       customDiffConfig: customConfig,
       customSnapshotsDir: path.join('path', 'to', 'my-custom-snapshots-dir'),
+      customDiffSnapshotsDir: path.join('path', 'to', 'my-custom-snapshots-dir', '__diff_output__'),
       noColors: true,
     });
     expect.extend({ toMatchImageSnapshot });
@@ -356,6 +358,7 @@ describe('toMatchImageSnapshot', () => {
       },
       snapshotIdentifier: 'test-spec-js-test-1-1',
       snapshotsDir: path.join('path', 'to', 'my-custom-snapshots-dir'),
+      diffSnapshotsDir: path.join('path', 'to', 'my-custom-snapshots-dir', '__diff_output__'),
       updateSnapshot: false,
       updatePassedSnapshot: false,
       failureThreshold: 0,

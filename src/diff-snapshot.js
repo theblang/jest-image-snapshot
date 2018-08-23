@@ -86,6 +86,7 @@ function diffImageToSnapshot(options) {
     receivedImageBuffer,
     snapshotIdentifier,
     snapshotsDir,
+    diffSnapshotsDir,
     updateSnapshot = false,
     updatePassedSnapshot = false,
     customDiffConfig = {},
@@ -100,8 +101,7 @@ function diffImageToSnapshot(options) {
     fs.writeFileSync(baselineSnapshotPath, receivedImageBuffer);
     result = { added: true };
   } else {
-    const outputDir = path.join(snapshotsDir, '__diff_output__');
-    const diffOutputPath = path.join(outputDir, `${snapshotIdentifier}-diff.png`);
+    const diffOutputPath = path.join(diffSnapshotsDir, `${snapshotIdentifier}-diff.png`);
     rimraf.sync(diffOutputPath);
 
     const defaultDiffConfig = {
@@ -149,7 +149,7 @@ function diffImageToSnapshot(options) {
     }
 
     if (isFailure({ pass, updateSnapshot })) {
-      mkdirp.sync(outputDir);
+      mkdirp.sync(diffSnapshotsDir);
       const compositeResultImage = new PNG({
         width: imageWidth * 3,
         height: imageHeight,

@@ -31,6 +31,7 @@ function updateSnapshotState(originalSnapshotState, partialSnapshotState) {
 function configureToMatchImageSnapshot({
   customDiffConfig: commonCustomDiffConfig = {},
   customSnapshotsDir: commonCustomSnapshotsDir,
+  customDiffSnapshotsDir: commonCustomDiffSnapshotsDir,
   noColors: commonNoColors = false,
   failureThreshold: commonFailureThreshold = 0,
   failureThresholdType: commonFailureThresholdType = 'pixel',
@@ -39,6 +40,7 @@ function configureToMatchImageSnapshot({
   return function toMatchImageSnapshot(received, {
     customSnapshotIdentifier = '',
     customSnapshotsDir = commonCustomSnapshotsDir,
+    customDiffSnapshotsDir = commonCustomDiffSnapshotsDir,
     customDiffConfig = {},
     noColors = commonNoColors,
     failureThreshold = commonFailureThreshold,
@@ -56,14 +58,15 @@ function configureToMatchImageSnapshot({
     const snapshotIdentifier = customSnapshotIdentifier || kebabCase(`${path.basename(testPath)}-${currentTestName}-${snapshotState._counters.get(currentTestName)}`);
 
     const snapshotsDir = customSnapshotsDir || path.join(path.dirname(testPath), SNAPSHOTS_DIR);
+    const diffSnapshotsDir = customDiffSnapshotsDir || path.join(snapshotsDir, '__diff_output__');
     const baselineSnapshotPath = path.join(snapshotsDir, `${snapshotIdentifier}-snap.png`);
 
     if (snapshotState._updateSnapshot === 'none' && !fs.existsSync(baselineSnapshotPath)) {
       return {
         pass: false,
         message: () => `New snapshot was ${chalk.bold.red('not written')}. The update flag must be explicitly ` +
-        'passed to write a new snapshot.\n\n + This is likely because this test is run in a continuous ' +
-        'integration (CI) environment in which snapshots are not written by default.\n\n',
+          'passed to write a new snapshot.\n\n + This is likely because this test is run in a continuous ' +
+          'integration (CI) environment in which snapshots are not written by default.\n\n',
       };
     }
 
@@ -71,6 +74,7 @@ function configureToMatchImageSnapshot({
       runDiffImageToSnapshot({
         receivedImageBuffer: received,
         snapshotsDir,
+        diffSnapshotsDir,
         snapshotIdentifier,
         updateSnapshot: snapshotState._updateSnapshot === 'all',
         customDiffConfig: Object.assign({}, commonCustomDiffConfig, customDiffConfig),
@@ -99,7 +103,7 @@ function configureToMatchImageSnapshot({
         updateSnapshotState(snapshotState, { unmatched: snapshotState.unmatched + 1 });
         const differencePercentage = result.diffRatio * 100;
         message = () => `Expected image to match or be a close match to snapshot but was ${differencePercentage}% different from snapshot (${result.diffPixelCount} differing pixels).\n`
-                  + `${chalk.bold.red('See diff for details:')} ${chalk.red(result.diffOutputPath)}`;
+          + `${chalk.bold.red('See diff for details:')} ${chalk.red(result.diffOutputPath)}`;
       }
     }
 
